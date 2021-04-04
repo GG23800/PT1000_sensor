@@ -1,0 +1,420 @@
+\documentclass[a4paper,twoside,11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\usepackage{graphics}
+\usepackage{amsmath,amsfonts,amssymb}
+\usepackage{float}
+\usepackage{placeins} %met des barrières aux floats
+\usepackage{color} %pour changer la couler du texte
+\usepackage{cases}
+\usepackage{cite}
+\usepackage{multirow}
+\usepackage{hyperref}
+
+\usepackage[top=2.5cm,bottom=2cm,inner=2.5cm,outer=1.5cm]{geometry} 
+
+%========>>> Style des légendes
+\makeatletter
+\renewcommand{\fnum@table}{\small\textbf{Tableau~\thetable}}
+\renewcommand{\fnum@figure}{\small\textbf{Figure~\thefigure}}
+\makeatother
+
+\pdfoptionpdfminorversion=7
+
+\makeindex
+
+
+\begin{document}
+%\include{title_page}
+%\clearpage
+
+\tableofcontents
+\clearpage
+
+\section{Introduction}
+\label{sec:introductio,}
+
+Ce projet est une première version d'un prototype de système de gestion de chauffage. C'est une première ébauche d'une version plus complexe qui viendra plus tard. Ce prototype permet de mesurer la température à l'aide de quatre capteurs PT1000 et d'afficher ses température sur un écran. On a également rajouté la possibilité de sauvegarder ces température en fonction du temps sur une carte SD afin de pouvoir suivre leurs évolutions. Pour cela, on a besoin de :  
+\begin{itemize}
+ \item un arduino nano,
+ \item un écran LCD, 
+ \item un encodeur rotatif (pour sélectionner le capteur dont on souhaite afficher la température),
+ \item une RTC,
+ \item un module carte SD,
+ \item un wadtchdog,
+ \item 4 capteur de température PT1000,
+ \item une pompe.
+\end{itemize}
+
+\section{Les modules}
+\label{sec:les modules}
+
+\subsection{Arduino nano}
+\label{sec:arduino nano}
+
+Pour ce projet, on utilise un \href{../../doc/NanoUserManual.pdf}{arduino nano}, car c'est une carte compacte pour réduire la taille du montage final. Ensuite on va avoir besoin de beacoup d'IO dans ce projet, un arduino ProMini serai insuffisant à ce niveau là.
+
+\subsection{\'Ecran LCD}
+\label{sec:ecran lcd}
+\FloatBarrier
+
+On utilise un écran LCD 16 caractères, 2 lignes (comme \href{https://letmeknow.fr/shop/fr/ecrans/166-afficher-16-caracteres-2-lignes-6913283524542.html}{celui-ci}). Ces écrans peuvent être utilisés avec un arduino grâce à la librairie \href{https://www.arduino.cc/en/Reference/LiquidCrystal}{LiquidCrystal.h} (ou voir la \href{https://github.com/arduino-libraries/LiquidCrystal}{page github}) et on peut se contenter d'utiliser uniquement les pins de données D4 à D7 et laissé les pins D0 à D3 non connectées.
+
+\subsubsection{Montage}
+\label{sec:ecran lcd cablage}
+
+\begin{figure}
+\begin{center}
+ \includegraphics{../../image/LCD_schematic.png}
+\end{center}
+\caption{Montage de l'écran LCD.}
+\label{fig: cablage ecran LCD}
+\end{figure}
+
+Le câblage de l'écran est présenté Figure~\ref{fig: cablage ecran LCD}, le schéma du module est présenté en vue de dessus les pins présentées non connectées seront reliées à l'arduino. Le potentiomètre sert à régler le rétro-éclairage de l'écran.
+
+\subsubsection{Utilisation}
+\label{sec:ecran lcd utilisation}
+
+On appelle le constructeur:
+\begin{verbatim}
+ LiquidCrystal lcd(RS,E,D4,D5,D6,D7);
+\end{verbatim}
+en remplaçant RS, E, ... par les pins de l'arduino correspondantes. On peut branché l'écran aussi bien sur des pins logiques que numériques. Attention, il semblerait qu'on ne peut pas utiliser les pins A5 et supérieures (question de registre de la librairie).
+
+Ensuite on initialise l'écran dans la fonction setup
+\begin{verbatim}
+  lcd.begin(Nc,Nl);
+\end{verbatim}
+où Nc est le nombre de charactères par ligne et Nl le nombre de ligne, dans notre cas on a Nc=16 et Nl=2. On peut écrit sur l'écran avec la fonction print(), se référer à la documentation de la librairie pour connaitre les autres fonctions.
+
+\FloatBarrier
+\subsection{Encodeur rotatif}
+\label{sec:encodeur rotatif}
+
+On utilise un encodeur rotatif cliquable (comme \href{https://letmeknow.fr/shop/fr/boutons-et-interrupteurs/110-modu-e-potentiometre-3614401603271.html}{celui-ci}, un exemple d'utilisation de ce module peut se trouver \href{https://bokc-fr.blogspot.com/2014/09/arduino-encodeur-rotatif-ky040.html}{ici}. Dans le code on utilisera les fonctions présentées dans cette page pour déterminer la rotation du module.
+
+\subsubsection{Montage}
+\label{sec: encodeur rotatif cablage}
+\FloatBarrier
+
+\begin{figure}
+\begin{center}
+ \includegraphics{../../image/Rotary_Encoder_schematic.png}
+\end{center}
+\caption{Montage de l'encodeur rotatif.}
+\label{fig: cablage encodeur rotatif}
+\end{figure}
+
+Le câblage du module est présenté Figure~\ref{fig: cablage encodeur rotatif}. La pin SW sert à mesurer l'état de clique de l'encodeur, les deux autres servent à repérer la rotation de l'encodeur.
+
+\subsubsection{Remarques}
+\label{sec:encodeur remarques}
+
+Notons que pour le bon fonctionnement de ce module, il est préférable de brancher les pins DT et CLK sur les pins 2 et 3 de l'aruino nano, seules pins fonctionnant sur \href{https://www.arduino.cc/reference/en/language/functions/external-interrupts/attachinterrupt/}{interruption}.
+
+\FloatBarrier
+
+\subsection{RTC}
+\label{sec:rtc}
+\FloatBarrier
+
+Une \href{https://fr.wikipedia.org/wiki/Horloge_temps_r%C3%A9el}{RTC} (acronyme de Real Time Clock) est un module comprenant une horloge externe autonome de précision (module comprenant une batterie). Ce type de module permet de connaitre l'heure exacte avec un microcontrôleur même s'il plante où s'il n'est plus alimenté. On utilise \href{https://letmeknow.fr/shop/fr/extensions/515-module-horloge-temps-reel-pour-raspberry-0661725188048.html}{un module RTC DS3231} module compacte et peu cher, compatible 5V, basé sur le circuit intégré \href{../../doc/DS3231.pdf}{DS3231}. Ce module communique en \href{https://fr.wikipedia.org/wiki/I2C}{I2C}, il doit donc être connecté aux pins  A4 (SDA) et A5 (SCL) de l'arduino. Pour l'interfacer avec l'arduino, on utilise la librairie \href{https://adafruit.github.io/RTClib/html/index.html}{RTClib.h} (nécessite la librairie Wire.h).
+
+\subsubsection{Montage}
+\label{sec:rtc cablage}
+
+\begin{figure}[htbp]
+\begin{center}
+ \includegraphics{../../image/RTC_schematic.png}
+\end{center}
+\caption{Montage de la RTC.}
+\label{fig: cablage rtc}
+\end{figure}
+
+Le montage de la RTC est présenté Figure~\ref{fig: cablage rtc}, elle est compatible 3.3 V et 5 V.
+
+\subsubsection{Utilisation}
+\label{sec:rtc utilisation}
+
+On inclus la librairie
+\begin{verbatim}
+    #include<Wire.h>
+    #include<RTClib.h>
+\end{verbatim}
+On appelle le constructeur pour la bonne RTC (cette librairie gère plusieurs RTCs)
+\begin{verbatim}
+    RTC_DS3231 rtc;
+\end{verbatim}
+Ensuite on initialise la rtc dans la fonction setup
+\begin{verbatim}
+  #ifdef AVR
+    Wire.begin();
+  #else
+    Wire1.begin();
+  #endif
+    rtc.begin();
+\end{verbatim}
+On récupère un objet DateTime avec la fonction now() qui pourra permettre d'afficher la date et l'heure.
+
+On peut également régler la date et l'heure de la RTC dans la fonction setup grâce à la commande
+\begin{verbatim}
+    rtc.adjust(DateTime(__DATE__,__TIME__));
+\end{verbatim}
+cette fonction permet de régler la RTC à la date et l'heure à la date et l'heure à laquelle le code a été compiler. Attention si on laisse le code telquel, à chaque fois que l'arduino va démarer, la rtc va être remise à la date et l'heure de compilation, donc si l'arduino redémare pour une raison ou pour une autre, la rtc sera déréglée. Une bonne manière de procéder consiste à brancher la RTC, compiler un code pour réfler l'heure, une fois fait, on coupe l'alimentation du circuit. On commente ou on efface du code la ligne de réglage puis on reflash l'arduino (la RTC doit être déconnectée du circuit). La RTC peut alors être rebranchée, elle restera bien réglée.
+
+\FloatBarrier
+
+\subsection{Carte SD}
+\label{sec:carte sd}
+\FloatBarrier
+
+On utilise un \href{https://letmeknow.fr/shop/fr/autres/880-module-carte-sd-652733799388.html}{module carte micro SD} qui communique en \href{https://fr.wikipedia.org/wiki/Serial_Peripheral_Interface}{SPI}. Pour se servir de ce module, on utilise la librairie \href{https://github.com/arduino-libraries/SD}{SD.h} (nécessitant la librairie SPI.h). Avec un arduino, la communication se fait avec les pins 11 (MOSI), 12 (MISO) et 13 (CLK), le ChipSelect peut se faire avec la pin qu'on veut.
+
+\subsubsection{Montage}
+\label{sec:sd montage}
+
+\begin{figure}[htbp]
+\begin{center}
+ \includegraphics{../../image/SD_schematic.png}
+\end{center}
+\caption{Montage du lecteur de carte SD.}
+\label{fig: cablage carte sd}
+\end{figure}
+
+Le montage du module de lecteur de carte SD est présenté sur la Figure~\ref{fig: cablage carte sd}. On ne montre pas ici les connections avec un arduino. Le brochage est présenté en vu du dessus. Le module est compatible 3.3 V et 5V.
+
+\subsubsection{Utilisation}
+\label{sec: sd utilisation}
+
+On inclus la librairie
+\begin{verbatim}
+    #include <SPI.h>
+    #include <SD.h>
+\end{verbatim}
+On initialise le module dans la fonction setup
+\begin{verbatim}
+    SD.begin(chipSelect);
+\end{verbatim}
+On peut ouvrir un fichier myFile en écriture avec
+\begin{verbatim}
+    myFile = SD.open(file_name, FILE_WRITE);
+\end{verbatim}
+Ensuite on peut écrire dedans avec 
+\begin{verbatim}
+    myFile.print();
+\end{verbatim}
+Comme pour l'écriture sur un lien série on peut utiliser la fonction println() pour insérer un caractère de fin de ligne après ce qu'on écrit dans le fichier. Il est nécessaire d'appeler la fonction
+\begin{verbatim}
+    myFile.close();
+\end{verbatim}
+pour écrire sur la carte SD. Tant qu'on ne l'appelle pas, ce qu'on veut écrire est stocké temporairement dans un buffer.
+
+Si la carte SD est retirée, il faut clore la connection avec le module avec 
+\begin{verbatim}
+    SD.end();
+\end{verbatim}
+
+
+\subsubsection{Remarques}
+\label{sec:sd remarques}
+
+La communication SPI est sensible et a tendance à ne pas fonctionner avec des branchements breadboard. Durant mon premier essaie, je n'ai pas pu communiquer avec le module en utilisant une breadboard, pour mon premier test fructueux, j'ai connecté le module à l'arduino directement avec des fils femelle/femelle.
+
+La librairie SD.h ne supporte pas des noms de fichier de plus de 12 caractères, 8 pour le nom et 4 pour l'extension (.txt ou .log par exemple).
+
+Le retour des fonctions n'étaient pas bonne sur la première version de la librairie que j'ai utilisé, donc on ne savait pas si la carte était connectée ou pas. En mettant à jour la librairie SD.h en version 1.2.4, le retour d'erreur de la fonction open() peut permettre de savoir si la carte SD est bien présente dans le lecteur.
+
+Attention à la carte SD qu'on utilise. La première carte utilisée semblait marcher correctement, on pouvait enregistrer un certain nombre de données mais rapidement la fonciton SD.open() retournait un dossier vide qui semblait dire qu'il n'y ai plus de carte SD dans le lecteur. De plus, certaines fois où l'enregistrement ne semblait pas planter quand on ouvrait la carte SD sur ordinateur beaucoup de fichier apparaissaient avec des noms remplis de caractères ASCII "non classiques". Ces caractères pouvaient également apparaitre uniquement dans les fichiers. Après différents tests, il s'est avéré au final qu'en changean la carte SD ces problèmes ont été résolu.
+
+\FloatBarrier
+
+\subsection{Watchdog}
+\label{sec:watchdog}
+
+Un \href{https://fr.wikipedia.org/wiki/Chien_de_garde_(informatique)}{watchdog} est un système qui permet de redémarer un microcontrôleur lorsque celui çi plante. On peut se passer de l'utilisation d'un watchdog pour un petit projet qui va tourner quelques minutes par çi par là, mais il est absolument indispensable pour un projet qui doit rester actif plusieurs heures, jours ou plus. Ici le projet doit pouvoir tourner plusieur jours/semaines pour cette version, mais il devra durer tourner plusieurs mois dans ça version finale.
+
+L'arduino possède un timer watchdog interne qu'on peut utiliser avec la librairie \href{https://www.mysensors.org/apidocs/group__avr__watchdog.html}{avr/wdt.h}. Dans la fonction setup on initialise le timer avec la fonction
+\begin{verbatim}
+    wdt_enable(WDTO_8S)
+\end{verbatim}
+ici on règle le timer sur 8 secondes, mais il peut être réglé entre 15 millisecondes et 8 secondes. Si on ne réinitialise pas le timer avec la fonction 
+\begin{verbatim}
+    wdt_reset() 
+\end{verbatim}
+avant son terme, le watchdog redémarerra l'arduino.
+
+Attention cependant lorsqu'on utilise un arduino nano, si l'arduino est un peu ancien et est flashé avec l'ancienne version de bootloader le timer est mal géré. Dans ce cas là si le watchdog s'enclenche, il n'est pas réinitialisé et donc au rédémarrage il se réenclenche et donc l'arduino reboot en permanence. On peut le remarquer car la LED L clignote rapidement. Pour régler le problème, il faut utiliser \href{https://www.arduino.cc/en/Tutorial/BuiltInExamples/ArduinoISP}{un autre arduino en tant que programmeur ISP} pour flasher la nouvelle version du bootloader (ou un autre bootloader compatible avec le watchdog).
+
+Pour éviter des problèmes de redémarrage intenpestif pouvant empécher de reflasher l'arduino avec un nouveau code, il est conseillé de désactiver le watchdog dans la fonction setup en appelant
+\begin{verbatim}
+    wdt_disable();
+\end{verbatim}
+
+\subsection{Capteur PT1000}
+\label{sec: capteur pt1000}
+\FloatBarrier
+
+\subsubsection{Informations}
+\label{sec:pt1000 informations}
+
+Les capteurs PT1000 (famille des \href{https://fr.wikipedia.org/wiki/Thermom%C3%A8tre_%C3%A0_r%C3%A9sistance_de_platine}{résistances de platine}, dont le représentant le plus connu est le PT100) sont des résistances variables en fonction de la température. Un PTX possède une résistance de X Ohms à 0$^\circ$C, et dont la résistance est donnée par :
+\begin{equation}
+    R\left(t\right) = 1 + At + Bt^2, \quad t \geq 0^\circ C,
+\end{equation}
+\begin{equation}
+    R\left(t\right) = 1 + At + Bt^2 + C(t-100)t^3, \quad t < 0^\circ C,
+\end{equation}
+avec $A = 3.9083.10^{-3}$, $B = -5.775.10^{-7}$, $C = -4.183.10^{-12}$.
+
+Les sondes seront utilisées pour mesurer la temperature de l'eau de chauffage, donc en condition normal d'utilisation, la température mesurée sera toujours comprise entre 0 et 100 $^\circ$C. La résistance de la sonde en fonction de la température en considérant cette limite est montrée sur la Figure~\ref{fig: pt1000 variation resistance}.
+
+\begin{figure}[htb]
+\begin{center}
+ \includegraphics{../../simulation/resistor_variation.pdf}
+\end{center}
+\caption{Variation de la résistance en fonction de la température.}
+\label{fig: pt1000 variation resistance}
+\end{figure}
+
+On voit que la résistance normée varie entre 1 et 1.4 de manière quasi linéaire. Pour retrouver la température à partir de la résistance (en considérant des températures uniquement positives), on a juste à utiliser la formule de résolution d'\href{https://fr.wikipedia.org/wiki/%C3%89quation_du_second_degr%C3%A9}{une équation second degré}, en sachant qu'on cherche la racine positive de l'équation :
+\begin{equation}
+    t = \dfrac{-b+\sqrt{delta}}{2a} =  \dfrac{-A+\sqrt{A^2 - 4B\left(1-R\right)}}{2B}.
+\end{equation}
+Si on considère une variation linéaire de la température $\left(R\left(t\right) = 1 + At\right)$, alors la formule pour retrouver la température devient simplement :
+\begin{equation}
+    t = (R-1)/A.
+\end{equation}
+L'erreur entre ces deux formulation est présentée sur la Figure~\ref{fig: pt1000 linear error}, elle monte à environ 1.5 $^\circ$C à 100 $^\circ$C. L'erreur n'est pas très importante, surtout pour de faible température on peut se limiter à la formulation linéaire de la température. Mais pour des questions de précision (sachant qu'il faudra rajouter l'erreur de mesure de la tension) nous allons quand même utiliser la formule quadratique ici pour retrouver la température de la sonde.
+
+\begin{figure}[htb]
+\begin{center}
+ \includegraphics{../../simulation/linear_error.pdf}
+\end{center}
+\caption{Erreur de l'aproximation linéaire en fonction de la température.}
+\label{fig: pt1000 linear error}
+\end{figure}
+
+\subsubsection{Mise en oeuvre}
+\label{sec:pt1000 mise en oeuvre}
+
+On a vu que pour retrouver la température de la sonde, il faut pouvoir mesurer la résistance de cette sonde. Celà peut se faire de manière simple à l'aide d'un pont diviseur de tension en mesurant la tension aux bornes de la sonde, avec une résistance de référence $R_r$ en série avec la sonde (\textit{cf.} Figure~{fig: pt1000 schematic}).
+
+\begin{figure}[htb]
+\begin{center}
+ \includegraphics{../../image/PT1000_schematic.png}
+\end{center}
+\caption{Montage d'un PT1000.}
+\label{fig: pt1000 schematic}
+\end{figure}
+
+En procédant ainsi, la tension normalisée aux bornes de la sonde s'exprime :  
+\begin{equation}
+    \dfrac{V}{Vcc} = \dfrac{R(t)}{(R(t)+R_r}.  
+\end{equation}
+On peut déterminer la résistance de référence $R_r$ permettant d'avoir la plus grande variation de tension aux bornes de la sonde. Pour cela on trace la variation de tension normalisée aux bornes de la sonde en fonciton de résistance de référence sur la Figure~\ref{fig: pt1000 relative voltage variation}.
+
+\begin{figure}[htb]
+\begin{center}
+ \includegraphics{../../simulation/maximum_relative_voltage_variation.png}
+\end{center}
+\caption{Variation de tension aux bornes d'un PT1000 (entre 0 et 100 $^\circ$C) en fonction de résistance de référence.}
+\label{fig: pt1000 relative voltage variation}
+\end{figure}
+
+La résistance de référence optimum est de 1.18 k$\Omega$, avec cette résistance on à une variation de tension relative de 8.13\%. Pour une résistance de référence comprise entre 920 et 1500 $\Omega$, on a une variation supérieur à 8\%. Cette variation est faible, en considérant l'ADC 10 bits de l'arduino, celà se traduit par une variation de sortie de l'ADC de 80 points environ. Cette variation est tracé sur la Figure~\ref{fig: pt1000 adc output} en considérant une résistance de référence de 1 k$\Omega$.
+
+\begin{figure}[htb]
+\begin{center}
+ \includegraphics{../../simulation/arduino_mesure.png}
+\end{center}
+\caption{Sortie de l'ADC de l'arduino en fonction de la température.}
+\label{fig: pt1000 adc output}
+\end{figure}
+
+On voit qu'on a une sensibilité de la mesure comprise entre 1 et 2 degré, en considérant l'erreur de l'ADC la présicision de ce montage est de l'ordre de +/- 3 $^\circ$C.
+
+\subsubsection{Remarques}
+\label{sec:pt1000 remarques}
+
+Lors de le mise en place des sondes sur site, il y aura surement une rallonge entre les sondes et le système de mesure ces rallonges vont rajouter une résistance parasite en série de la sonde. Il sera préférable de les recalibrer sur site.
+
+Pour améliorer la sensiblité de la mesure on pourrait utiliser un AOP en montage soustracteur (avec un LM358 par exemple). En choisissant bien la tension de référence et le coefficient d'amplification du montage, on peut gagner un facteur 10 de sensibilité.
+
+\FloatBarrier
+\subsection{Pompe}
+\label{sec: pompe}
+
+On utilise une pompe \href{../../doc/UPM3_Pump_Grundfos.pdf}{upm3 solar} qui peut être controllée par PWM (tension comprise en 4 et 24 V). La définition des fils PWM de la pompe sont montrés page 52.
+
+Le control de la vitesse de la pompe en fonction de la PWM est donné par la courbe Figure~\ref{fig: pompe PWM} (page 18 de la documentation).
+
+\begin{figure}[htb]
+\begin{center}
+ \includegraphics{../../image/upm3_curve.png}
+\end{center}
+\caption{Gestion de la pompe par PWM.}
+\label{fig: pompe PWM}
+\end{figure}
+
+\section{Projet complet}
+\label{sec:projet complet}
+\FloatBarrier
+
+\subsection{Fonctionnement}
+\label{sec:projet fonctionnement}
+
+ \`A l'aide de ce prototype, on affiche en "temps réel" l'heure (première ligne à gauche) et la température du capteur sélectionné T1 à T4 (deuxième ligne), la température affichée est la moyenne des dix dernières mesures. On peut changer le capteur à afficher avec l'encodeur rotatif. On affiche en haut à droite si une carte SD est présente ou non dans le lecteur de carte (attention, la réinitialisation du module SD est longue, environ 2 secondes, donc s'il n'y a pas de carte SD dans le lecteur l'affichage est saccadé). Si une carte SD est présente dans le lecteur, on enregistre les températures des quatre capteurs dans un fichier texte dont le nom est YYYYMMDD.txt tous les pas temps, par défaut ce pas de temps est de 5 minutes. En cliquant sur l'encodeur rotatif on peut changer le pas d'enregistrement de la température, on peut modifier ce pas de temps par pas de 10 secondes.
+
+\href{../../soft_arduino/soft_arduino.ino}{Le code de l'arduino} est donné dans le dossier soft\_arduino. Le firmware fonctionne de la façon suivant, à chaque boucle :
+\begin{itemize}
+    \item on reset le watchdog,  
+    \item on demande l'heure à la RTC et on l'affiche sur l'écran lcd,  
+    \item on mesure la température pour les quatre capteurs et on la sauvegarde dans une "mémoire tournante",
+    \item on affiche la température du capteur sélectionné (moyénné sur les 10 dernières mesures) sur l'écran lcd,  
+    \item si on a cliqué sur l'encodeur tournant on lance la fonction pour changer le pas d'enregistrement,  
+    \item si la carte SD n'était pas accessible à la boucle précédente on réinitialise le module SD,  
+    \item si la carte SD était accessible à la boucle précédente, on vérifie que c'est toujours le cas en ouvrant un fichier text (qui ne sert à rien sauf à vérifier que la carte est toujours accessible). Si on a une erreur c'est que la carte n'est plus accessible. On affiche sur l'écran qu'il n'y a plus de carte SD dans le lecteur,  
+    \item si l'heure donnée par la RTC est supérieur ou égale à l'heure du prochain enregistrement, on enregistre la température des 4 capteurs moyénnée sur les 10 dernières mesures. Le nom du fichier texte est la date du jour sous la forme YYYYMMDD.txt.
+\end{itemize}
+
+\subsection{Wiring}
+\label{sec:projet montage}
+
+Le plan du projet complet est présenté Figure~\ref{fig: project full schematic}. Le projet est relativement simple mais utilise quasiment toutes les pins de l'arduino, seules les pins Rx et TX ne sont pas utilisées. Pour des questions de répétabilité et de fiabilité, il faut utiliser des résistances avec une bonne résolution, typiquement $\pm 1 \%$.
+
+Pour ne pas avoir un écran qui est allumé tout le temps, on pourrait rajouter un transistor ou un intérrupteur sur l'anode (pin A) de l'écran.
+
+Les capteurs T1 à T4 sont branchés respectivement sur les connecteur J2 à J5, soit respectivement les pins A7, A6, A3 et A2. La pompe est branchée sur le connecteur J1 (pin 9 de l'arduino), la masse de la PWM de la pompe est le fil bleu (\textit{cf.} page 52 de la datasheet).
+
+\begin{figure}[htb]
+    \begin{center}
+        \includegraphics{../../image/full_schematic.png}
+    \end{center}
+    \caption{Plan du projet complet.}
+    \label{fig: project full schematic}
+\end{figure}
+
+\subsection{Visuel}
+\label{sec:projet visuel}
+
+On peut voir deux images du prototype complet monté sur les Figures~\ref{fig: project photo1} et~\ref{fig: project photo2}.
+
+\begin{figure}[htb]
+    \begin{center}
+        \includegraphics{../../image/project1.jpg}
+    \end{center}
+    \caption{Photo du montage final.}
+    \label{fig: project photo1}
+\end{figure}
+
+\begin{figure}[htb]
+    \begin{center}
+        \includegraphics{../../image/project2.jpg}
+    \end{center}
+    \caption{Photo du montage final.}
+    \label{fig: project photo2}
+\end{figure}
+
+\FloatBarrier
+\end{document}          

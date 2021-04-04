@@ -1,0 +1,332 @@
+EESchema Schematic File Version 4
+EELAYER 30 0
+EELAYER END
+$Descr A4 11693 8268
+encoding utf-8
+Sheet 1 1
+Title ""
+Date ""
+Rev ""
+Comp ""
+Comment1 ""
+Comment2 ""
+Comment3 ""
+Comment4 ""
+$EndDescr
+$Comp
+L Arduino:Arduino_nano U?
+U 1 1 604ED9BC
+P 6050 3875
+F 0 "U?" H 6050 4625 50  0000 C CNN
+F 1 "Arduino_nano" H 6050 4534 50  0000 C CNN
+F 2 "" H 6050 3875 50  0001 C CNN
+F 3 "" H 6050 3875 50  0001 C CNN
+	1    6050 3875
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:CP C?
+U 1 1 604EE5F2
+P 7000 3125
+F 0 "C?" H 6882 3079 50  0000 R CNN
+F 1 "CP" H 6882 3170 50  0000 R CNN
+F 2 "" H 7038 2975 50  0001 C CNN
+F 3 "~" H 7000 3125 50  0001 C CNN
+	1    7000 3125
+	1    0    0    1   
+$EndComp
+Wire Wire Line
+	6625 3425 6725 3425
+Wire Wire Line
+	6725 3425 6725 2975
+Wire Wire Line
+	6725 2975 7000 2975
+Wire Wire Line
+	6625 3575 7000 3575
+Wire Wire Line
+	7000 3575 7000 3275
+$Comp
+L Arduino:LCD_screen U?
+U 1 1 604EFA27
+P 3900 4300
+F 0 "U?" V 2875 4408 50  0000 C CNN
+F 1 "LCD_screen" V 2966 4408 50  0000 C CNN
+F 2 "" H 3900 4050 50  0001 C CNN
+F 3 "" H 3900 4050 50  0001 C CNN
+	1    3900 4300
+	0    1    1    0   
+$EndComp
+$Comp
+L Device:R_POT RV?
+U 1 1 604F0EC9
+P 4575 3175
+F 0 "RV?" H 4506 3221 50  0000 R CNN
+F 1 "R_POT" H 4506 3130 50  0000 R CNN
+F 2 "" H 4575 3175 50  0001 C CNN
+F 3 "~" H 4575 3175 50  0001 C CNN
+	1    4575 3175
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	4300 3500 4300 3025
+Wire Wire Line
+	4300 3025 4575 3025
+Wire Wire Line
+	4300 3800 3825 3800
+Wire Wire Line
+	3825 3800 3825 3500
+Wire Wire Line
+	3825 3500 4300 3500
+Connection ~ 4300 3500
+$Comp
+L power:+5V #PWR?
+U 1 1 604F3253
+P 7300 3575
+F 0 "#PWR?" H 7300 3425 50  0001 C CNN
+F 1 "+5V" V 7315 3703 50  0000 L CNN
+F 2 "" H 7300 3575 50  0001 C CNN
+F 3 "" H 7300 3575 50  0001 C CNN
+	1    7300 3575
+	0    1    1    0   
+$EndComp
+Connection ~ 7000 3575
+Wire Wire Line
+	4575 3025 4575 2975
+Wire Wire Line
+	4575 2975 5125 2975
+Connection ~ 4575 3025
+Connection ~ 6725 2975
+Wire Wire Line
+	6625 3575 6075 3575
+Wire Wire Line
+	6075 3575 6075 3275
+Wire Wire Line
+	6075 3275 5200 3275
+Wire Wire Line
+	4925 3275 4925 3325
+Wire Wire Line
+	4925 3325 4575 3325
+Connection ~ 6625 3575
+Wire Wire Line
+	4925 3575 4925 3325
+Connection ~ 4925 3325
+Wire Wire Line
+	4300 3650 4850 3650
+Wire Wire Line
+	4850 3650 4850 3175
+Wire Wire Line
+	4850 3175 4725 3175
+NoConn ~ 3450 3125
+Wire Wire Line
+	3825 3800 3825 4625
+Wire Wire Line
+	3825 4625 4300 4625
+Connection ~ 3825 3800
+Wire Wire Line
+	4300 4550 3875 4550
+Wire Wire Line
+	3875 4550 3875 3575
+Wire Wire Line
+	3875 3575 4300 3575
+Connection ~ 4300 3575
+Wire Wire Line
+	4300 3575 4925 3575
+Wire Wire Line
+	4300 3725 5025 3725
+Wire Wire Line
+	5025 3725 5025 4500
+Wire Wire Line
+	5025 4500 6150 4500
+Wire Wire Line
+	6150 4500 6150 4175
+Wire Wire Line
+	6150 4175 6625 4175
+Wire Wire Line
+	4300 3875 4925 3875
+Wire Wire Line
+	4925 3875 4925 4575
+Wire Wire Line
+	4925 4575 6100 4575
+Wire Wire Line
+	6100 4575 6100 4100
+Wire Wire Line
+	6100 4100 6625 4100
+NoConn ~ 4300 3950
+NoConn ~ 4300 4025
+NoConn ~ 4300 4100
+NoConn ~ 4300 4175
+Wire Wire Line
+	4300 4250 5075 4250
+Wire Wire Line
+	5075 4250 5075 3800
+Wire Wire Line
+	5075 3800 5475 3800
+Wire Wire Line
+	4300 4325 5100 4325
+Wire Wire Line
+	5100 4325 5100 3875
+Wire Wire Line
+	5100 3875 5475 3875
+Wire Wire Line
+	4300 4400 5125 4400
+Wire Wire Line
+	5125 4400 5125 3950
+Wire Wire Line
+	5125 3950 5475 3950
+Wire Wire Line
+	4300 4475 5150 4475
+Wire Wire Line
+	5150 4475 5150 4025
+Wire Wire Line
+	5150 4025 5475 4025
+$Comp
+L Arduino:Rotary_encoder U?
+U 1 1 60505D87
+P 5275 2275
+F 0 "U?" H 5503 2276 50  0000 L CNN
+F 1 "Rotary_encoder" H 5503 2185 50  0000 L CNN
+F 2 "" H 5525 2425 50  0001 C CNN
+F 3 "" H 5525 2425 50  0001 C CNN
+	1    5275 2275
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	5125 2625 5125 2975
+Connection ~ 5125 2975
+Wire Wire Line
+	5125 2975 6150 2975
+Wire Wire Line
+	5200 2625 5200 3275
+Connection ~ 5200 3275
+Wire Wire Line
+	5200 3275 4925 3275
+Wire Wire Line
+	5875 3100 5875 4100
+Wire Wire Line
+	5875 4100 5475 4100
+Wire Wire Line
+	5275 3100 5275 2625
+Wire Wire Line
+	5275 3100 5875 3100
+Wire Wire Line
+	5350 2600 5350 2625
+Wire Wire Line
+	5350 3650 5475 3650
+Connection ~ 5350 2625
+Wire Wire Line
+	5350 2625 5350 3650
+Wire Wire Line
+	5425 2625 5425 3725
+Wire Wire Line
+	5425 3725 5475 3725
+$Comp
+L Arduino:DS3231 U?
+U 1 1 6050EA16
+P 7850 3250
+F 0 "U?" V 7799 3602 50  0000 L CNN
+F 1 "DS3231" V 7890 3602 50  0000 L CNN
+F 2 "" H 7850 3625 50  0001 C CNN
+F 3 "" H 7850 3625 50  0001 C CNN
+	1    7850 3250
+	0    1    1    0   
+$EndComp
+$Comp
+L power:GNDREF #PWR?
+U 1 1 60514478
+P 6150 2750
+F 0 "#PWR?" H 6150 2500 50  0001 C CNN
+F 1 "GNDREF" H 6155 2577 50  0000 C CNN
+F 2 "" H 6150 2750 50  0001 C CNN
+F 3 "" H 6150 2750 50  0001 C CNN
+	1    6150 2750
+	1    0    0    1   
+$EndComp
+Wire Wire Line
+	6150 2750 6150 2975
+Connection ~ 6150 2975
+Wire Wire Line
+	6150 2975 6725 2975
+Wire Wire Line
+	7000 2975 7450 2975
+Wire Wire Line
+	7450 2975 7450 3100
+Wire Wire Line
+	7450 3100 7550 3100
+Connection ~ 7000 2975
+Wire Wire Line
+	7300 3575 7300 3400
+Wire Wire Line
+	7300 3400 7550 3400
+Wire Wire Line
+	7000 3575 7300 3575
+NoConn ~ 7550 3175
+Connection ~ 7300 3575
+Wire Wire Line
+	7250 3325 7250 3875
+Wire Wire Line
+	7250 3875 6625 3875
+Wire Wire Line
+	7250 3325 7550 3325
+Wire Wire Line
+	6625 3800 7200 3800
+Wire Wire Line
+	7200 3800 7200 3250
+Wire Wire Line
+	7200 3250 7550 3250
+NoConn ~ 5475 3350
+NoConn ~ 5475 3425
+NoConn ~ 5475 3500
+NoConn ~ 6625 3350
+NoConn ~ 6625 3500
+NoConn ~ 6625 4325
+NoConn ~ 6625 4250
+$Comp
+L Arduino:SD_card U?
+U 1 1 60531339
+P 6100 5150
+F 0 "U?" H 5813 5183 50  0000 R CNN
+F 1 "SD_card" H 5813 5274 50  0000 R CNN
+F 2 "" H 6100 5150 50  0001 C CNN
+F 3 "" H 6100 5150 50  0001 C CNN
+	1    6100 5150
+	-1   0    0    1   
+$EndComp
+Wire Wire Line
+	6075 3575 6075 4675
+Wire Wire Line
+	6075 4675 6225 4675
+Wire Wire Line
+	6225 4675 6225 4825
+Connection ~ 6075 3575
+Wire Wire Line
+	7450 2975 8500 2975
+Wire Wire Line
+	8500 2975 8500 4825
+Wire Wire Line
+	8500 4825 6300 4825
+Connection ~ 7450 2975
+Wire Wire Line
+	6000 4825 6000 4400
+Wire Wire Line
+	6000 4400 6625 4400
+Wire Wire Line
+	5925 4825 5925 4250
+Wire Wire Line
+	5925 4250 5475 4250
+Wire Wire Line
+	5475 4325 5800 4325
+Wire Wire Line
+	5800 4325 5800 4725
+Wire Wire Line
+	5800 4725 6075 4725
+Wire Wire Line
+	6075 4725 6075 4825
+Wire Wire Line
+	5475 4400 5725 4400
+Wire Wire Line
+	5725 4400 5725 4800
+Wire Wire Line
+	5725 4800 6150 4800
+Wire Wire Line
+	6150 4800 6150 4825
+$EndSCHEMATC

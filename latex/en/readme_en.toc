@@ -1,0 +1,26 @@
+\contentsline {section}{\numberline {1}Introduction}{2}{section.1}
+\contentsline {section}{\numberline {2}The modules}{2}{section.2}
+\contentsline {subsection}{\numberline {2.1}Arduino nano}{2}{subsection.2.1}
+\contentsline {subsection}{\numberline {2.2}LCD screen}{2}{subsection.2.2}
+\contentsline {subsubsection}{\numberline {2.2.1}Wiring}{2}{subsubsection.2.2.1}
+\contentsline {subsubsection}{\numberline {2.2.2}Usage}{2}{subsubsection.2.2.2}
+\contentsline {subsection}{\numberline {2.3}Rotary encoder}{3}{subsection.2.3}
+\contentsline {subsubsection}{\numberline {2.3.1}Wiring}{3}{subsubsection.2.3.1}
+\contentsline {subsubsection}{\numberline {2.3.2}Remarques}{3}{subsubsection.2.3.2}
+\contentsline {subsection}{\numberline {2.4}RTC}{4}{subsection.2.4}
+\contentsline {subsubsection}{\numberline {2.4.1}Wiring}{4}{subsubsection.2.4.1}
+\contentsline {subsubsection}{\numberline {2.4.2}Usage}{4}{subsubsection.2.4.2}
+\contentsline {subsection}{\numberline {2.5}SD card slot}{5}{subsection.2.5}
+\contentsline {subsubsection}{\numberline {2.5.1}Wiring}{5}{subsubsection.2.5.1}
+\contentsline {subsubsection}{\numberline {2.5.2}Usage}{5}{subsubsection.2.5.2}
+\contentsline {subsubsection}{\numberline {2.5.3}Remarques}{6}{subsubsection.2.5.3}
+\contentsline {subsection}{\numberline {2.6}Watchdog}{6}{subsection.2.6}
+\contentsline {subsection}{\numberline {2.7}PT1000 sensors}{6}{subsection.2.7}
+\contentsline {subsubsection}{\numberline {2.7.1}Informations}{6}{subsubsection.2.7.1}
+\contentsline {subsubsection}{\numberline {2.7.2}Implementation}{7}{subsubsection.2.7.2}
+\contentsline {subsubsection}{\numberline {2.7.3}Remarques}{8}{subsubsection.2.7.3}
+\contentsline {subsection}{\numberline {2.8}Pump}{10}{subsection.2.8}
+\contentsline {section}{\numberline {3}Full project}{11}{section.3}
+\contentsline {subsection}{\numberline {3.1}Functioning}{11}{subsection.3.1}
+\contentsline {subsection}{\numberline {3.2}Montage}{11}{subsection.3.2}
+\contentsline {subsection}{\numberline {3.3}Assembly}{11}{subsection.3.3}
