@@ -1,6 +1,6 @@
 ## Informations
 
-In this repository, we present a prototype of heating regulation using PT1000 sensors. One can find full [english documentation](latex/en/readme_en.pdf) and [french documentation](latex/fr/readme_fr.pdf).
+In this repository, we present a prototype of heating regulation using an arduino and PT1000 sensors. One can find full [english documentation](latex/en/readme_en.pdf) and [french documentation](latex/fr/readme_fr.pdf).
 
 
 ## Repo architecture
